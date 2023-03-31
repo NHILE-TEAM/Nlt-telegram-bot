@@ -39,6 +39,11 @@ const data = [
 ]
 
 const bot = new Telegraf(YOUR_TOKEN);
+bot.help((ctx) => ctx.reply(`
+  Available commands:
+  /schedul - Schedule wyfls and questions
+  /help - Show help
+`));
 
 let isSchedule = false;
 let wyflsJob;
@@ -51,14 +56,14 @@ bot.hears(/\/schedule/, (ctx) => {
     bot.telegram.sendMessage(chatId, 'Lịch hẹn đã được đặt trước đó.');
     return;
   }
-  
+
   wyflsJob = cron.schedule('30 20 * * *', () => {
     bot.telegram.sendMessage(chatId, `@all What you feel like saying cả nhà?`);
   }, {
     scheduled: true,
     timezone: 'Asia/Bangkok'
   });
-  
+
   cardJob = cron.schedule('0 7 * * *', () => {
     const randomText = data[Math.floor(Math.random() * data.length)];
     bot.telegram.sendMessage(chatId, `@all ${randomText}`);
@@ -66,7 +71,7 @@ bot.hears(/\/schedule/, (ctx) => {
     scheduled: true,
     timezone: 'Asia/Bangkok'
   });
-    
+
   isSchedule = true;
   bot.telegram.sendMessage(chatId, 'Lịch hẹn đã được đặt.');
 });
