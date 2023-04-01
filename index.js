@@ -46,25 +46,25 @@ bot.help((ctx) => ctx.reply(`
 `));
 
 let isSchedule = false;
-let wyflsJob;
-let cardJob;
+let wyflsJob = null;
+let cardJob = null;
 
 bot.hears(/\/schedule/, (ctx) => {
-  const chatId = ctx.chat.id;
+  const chatId = ctx.message.chat.id;
 
   if (isSchedule) {
     bot.telegram.sendMessage(chatId, 'Lịch hẹn đã được đặt trước đó.');
     return;
   }
 
-  wyflsJob = cron.schedule('30 20 * * *', () => {
+  wyflsJob = cron.schedule('0 21 * * *', () => {
     bot.telegram.sendMessage(chatId, `@all What you feel like saying cả nhà?`);
   }, {
     scheduled: true,
     timezone: 'Asia/Bangkok'
   });
 
-  cardJob = cron.schedule('0 7 * * *', () => {
+  cardJob = cron.schedule('30 8 * * *', () => {
     const randomText = data[Math.floor(Math.random() * data.length)];
     bot.telegram.sendMessage(chatId, `@all ${randomText}`);
   }, {
@@ -74,6 +74,21 @@ bot.hears(/\/schedule/, (ctx) => {
 
   isSchedule = true;
   bot.telegram.sendMessage(chatId, 'Lịch hẹn đã được đặt.');
+});
+
+bot.hears(/\/stop/, (ctx) => {
+  const chatId = ctx.chat.id;
+
+  if (!isSchedule) {
+    bot.telegram.sendMessage(chatId, 'Lịch hẹn chưa được đặt.');
+    return;
+  }
+
+  wyflsJob.stop();
+  cardJob.stop();
+  isSchedule = false;
+
+  bot.telegram.sendMessage(chatId, 'Lịch hẹn đã được hủy bỏ.');
 });
 
 bot.launch();
